@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - StockpileInvestment</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f8fb;
+      color: #333;
+    }
+    header {
+      background-color: #003366;
+      color: white;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-title {
+      font-size: 18px;
+    }
+    .top-right-profile {
+      position: relative;
+      cursor: pointer;
+    }
+    .top-right-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+    .profile-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      z-index: 1001;
+    }
+    .profile-dropdown a {
+      display: block;
+      padding: 10px;
+      text-decoration: none;
+      color: #003366;
+    }
+    .profile-dropdown a:hover {
+      background-color: #f4f4f4;
+    }
+    .marquee {
+      background-color: #001f4d;
+      color: #fff;
+      padding: 10px;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .marquee span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll 20s linear infinite;
+    }
+    @keyframes scroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
+    }
+    .dashboard {
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-toggle {
+      font-size: 28px;
+      color: white;
+      background-color: #003366;
+      border: none;
+      cursor: pointer;
+    }
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background-color: #003366;
+      overflow-x: hidden;
+      transition: 0.3s;
+      padding-top: 70px;
+      z-index: 1050;
+    }
+    .sidebar.open {
+      width: 200px;
+    }
+    .sidebar a, .sidebar button {
+      display: block;
+      padding: 15px 20px;
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      background: none;
+      border: none;
+      text-align: left;
+    }
+    .sidebar a:hover, .sidebar button:hover {
+      background-color: #005fa3;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px;
+    }
+    .top-menu {
+      background-color: #003366;
+      color: white;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      padding: 15px;
+      flex-wrap: wrap;
+    }
+    .top-menu a, .top-menu button {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 6px;
+      background-color: #004080;
+      border: none;
+      cursor: pointer;
+    }
+    .top-menu a:hover, .top-menu button:hover {
+      background-color: #005fa3;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin: 20px 0;
+    }
+    .rol {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .balance {
+      font-size: 28px;
+      color: #003366;
+      font-weight: bold;
+    }
+    .plans {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .plan {
+      background-color: #e6f2ff;
+      border: 1px solid #005fa3;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .plan h3 {
+      margin-bottom: 10px;
+      color: #003366;
+    }
+    .plan p {
+      margin-bottom: 10px;
+    }
+    .plan button {
+      background-color: #005fa3;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .plan button:hover {
+      background-color: #003366;
+    }
+    @media (max-width: 768px) {
+      .plans {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">⋮</button>
+      <span class="header-title">Welcome to StockpileInvestment Dashboard</span>
+    </div>
+    <div class="top-right-profile">
+      <img src="default-avatar.png" alt="User Profile" onclick="toggleProfileMenu()" />
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="profile.html">👤 Profile</a>
+        <a href="settings.html">⚙️ Settings</a>
+        <a href="logout.html">🚪 Logout</a>
+      </div>
+    </div>
+  </header>
+  <div class="marquee">
+    <span>📈 Bitcoin Hits $70k | 💹 Tesla Shares Soar | 🇳🇬 NGX Market Report Live | 📊 US Inflation Report Positive | 💰 Ethereum Up 15% | 💼 Stockpile Updates Every Hour</span>
+  </div>
+  <div class="dashboard">
+    <div class="sidebar" id="sidebar">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="deposit.html">Deposit</a>
+      <button onclick="copyReferralLink()">🔗 Referral Link</button>
+      <a href="withdraw.html">Withdraw</a>
+      <a href="plans.html">Investment Plans</a>
+      <a href="portfolio.html">Portfolio</a>
+      <a href="support.html">Live Chat</a>
+      <a href="notifications.html">Admin Notifications</a>
+      <a href="transaction.html">Transaction History</a>
+      <a href="settings.html">Settings</a>
+      <a href="logout.html">Logout</a>
+    </div>
+    <div class="main-content">
+      <div class="top-menu">
+        <a href="deposit.html">Deposit</a>
+        <a href="withdraw.html">Withdraw</a>
+        <button onclick="copyReferralLink()">🔗 Copy Referral Link</button>
+      </div>
+      <div class="card">
+        <div class="rol">⏱️ ROI Countdown Timer</div>
+        <div id="timer">Loading...</div>
+      </div>
+      <div class="card">
+        <div>💼 Account Balance</div>
+        <div class="balance">$1,250.00</div>
+      </div>
+      <div class="card">
+        <div>💸 Referral Earnings</div>
+        <p>You have referred 25 users.</p>
+        <p><strong>Total Earned:</strong> $50.00</p>
+        <small>($2 per referral)</small>
+      </div>
+      <div class="card">
+        <div class="rol">📋 Investment Plans</div>
+        <div class="plans">
+          <div class="plan">
+            <h3>Starter Plan</h3>
+            <p>💰 ROI: 10% in 7 days</p>
+            <p>Minimum: $50 | Maximum: $500</p>
+            <button onclick="location.href='deposit.html'">Invest</button>
+          </div>
+          <div class="plan">
+            <h3>Gold Plan</h3>
+            <p>💰 ROI: 20% in 14 days</p>
+            <p>Minimum: $501 | Maximum: $2000</p>
+            <button onclick="location.href='deposit.html'">Invest</button>
+          </div>
+          <div class="plan">
+            <h3>Premium Plan</h3>
+            <p>💰 ROI: 35% in 30 days</p>
+            <p>Minimum: $2001 and above</p>
+            <button onclick="location.href='deposit.html'">Invest</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div>📁 Portfolio Overview</div>
+        <p>You currently have 3 active investments.</p>
+      </div>
+      <div class="card">
+        <div>📈 Live Trading Chart</div>
+        <iframe src="https://s.tradingview.com/widgetembed/?symbol=NASDAQ%3AAAPL&interval=D&theme=light" width="100%" height="400" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+      </div>
+      <div class="card">
+        <div>💬 Live Chat Support</div>
+        <p>Chat with our experts live about your investments.</p>
+        <button onclick="location.href='support.html'">Open Chat</button>
+      </div>
+      <div class="card">
+        <div>📞 Customer Service</div>
+        <p>Need help? Contact our customer service.</p>
+        <button onclick="location.href='support.html'">Contact Support</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+    function toggleProfileMenu() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+    function startCountdown() {
+      const display = document.getElementById('timer');
+      let end = new Date();
+      end.setHours(end.getHours() + 24);
+      function updateTimer() {
+        const now = new Date();
+        const timeLeft = end - now;
+        if (timeLeft <= 0) {
+          display.innerHTML = "✅ ROI Ready!";
+          return;
+        }
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        display.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+      }
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+    startCountdown();
+
+    function copyReferralLink() {
+      const userId = "user123"; // Replace with actual user ID from login/session
+      const link = `https://yourwebsite.com/register.html?ref=${userId}`;
+      navigator.clipboard.writeText(link).then(() => {
+        alert("✅ Referral link copied to clipboard!");
+      }).catch(err => {
+        alert("❌ Failed to copy link: " + err);
+      });
+    }
+  </script>
+</body>
+</html>

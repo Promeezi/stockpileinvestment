@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | Stockpile Investment</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 30px;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 15px #ccc;
+    }
+    h2 {
+      text-align: center;
+      color: #222;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #2b2e4a;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .login-link {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .privacy {
+      font-size: 12px;
+      color: #666;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create Account</h2>
+    <form id="registerForm">
+      <label>First Name</label>
+      <input type="text" name="firstName" required><label>Last Name</label>
+  <input type="text" name="lastName" required>
+
+  <label>Gender</label>
+  <select name="gender" required>
+    <option value="" disabled selected>Select Gender</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <label>Date of Birth</label>
+  <input type="date" name="dob" required>
+
+  <label>Country</label>
+  <input type="text" name="country" placeholder="Enter your country" required>
+
+  <label>City</label>
+  <input type="text" name="city" required>
+
+  <label>Email</label>
+  <input type="email" name="email" required>
+
+  <label>Phone Number</label>
+  <input type="tel" name="phone" required>
+
+  <label>Password</label>
+  <input type="password" name="password" required>
+
+  <label>Confirm Password</label>
+  <input type="password" name="confirmPassword" required>
+
+  <button type="submit" class="btn">Register</button>
+</form>
+
+<div class="login-link">
+  Already have an account? <a href="login.html">Login here</a>
+</div>
+
+<div class="privacy">
+  <strong>Privacy Policy:</strong><br>
+  Your personal data is safe and encrypted. We do not share it with third parties.
+</div>
+
+  </div>  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-qE7KDpKeLe1iAP4Se2LltL75c7e7Eic",
+      authDomain: "stockpileinvestment-8861c.firebaseapp.com",
+      projectId: "stockpileinvestment-8861c",
+      storageBucket: "stockpileinvestment-8861c.appspot.com",
+      messagingSenderId: "334124234258",
+      appId: "1:334124234258:web:3e06b33a6f4c9f41ffcacb",
+      measurementId: "G-THC0G2GLXX"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("registerForm");
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get("ref");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = form.email.value;
+      const password = form.password.value;
+      const confirmPassword = form.confirmPassword.value;
+      const userData = {
+        firstName: form.firstName.value,
+        lastName: form.lastName.value,
+        gender: form.gender.value,
+        dob: form.dob.value,
+        country: form.country.value,
+        city: form.city.value,
+        email: email,
+        phone: form.phone.value,
+        referredBy: refCode || null,
+        referralEarnings: 0
+      };
+
+      if (password !== confirmPassword) {
+        alert("❌ Passwords do not match");
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, "users", user.uid), userData);
+        await sendEmailVerification(user);
+
+        if (refCode) {
+          const refUser = await getDoc(doc(db, "users", refCode));
+          if (refUser.exists()) {
+            await updateDoc(doc(db, "users", refCode), {
+              referralEarnings: (refUser.data().referralEarnings || 0) + 2
+            });
+          }
+        }
+
+        alert("✅ Registered successfully! Verification email sent.");
+        window.location.href = "login.html";
+      } catch (error) {
+        alert("❌ Error: " + error.message);
+      }
+    });
+  </script></body>
+</html>
